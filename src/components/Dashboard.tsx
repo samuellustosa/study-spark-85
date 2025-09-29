@@ -83,10 +83,10 @@ export function Dashboard() {
       {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-          StudyCards
+          SamuelCards
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Sistema inteligente de flashcards com repetição espaçada para maximizar seu aprendizado
+          para mim.
         </p>
       </div>
       

@@ -170,6 +170,7 @@ export function useReviewCard() {
 
       const nextReview = new Date();
       nextReview.setDate(nextReview.getDate() + intervalDays);
+      nextReview.setHours(0, 0, 0, 0); // Define o horário para 00:00:00
 
       // Primeiro, buscar o card atual para incrementar review_count
       const { data: currentCard, error: fetchError } = await supabase
