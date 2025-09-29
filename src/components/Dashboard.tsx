@@ -6,6 +6,7 @@ import { useStudyCards } from "@/hooks/useFlashcards";
 import { DeckCard } from "./DeckCard";
 import { StudyMode } from "./StudyMode";
 import { CreateDeckDialog } from "./CreateDeckDialog";
+import { EditDeckDialog } from "./EditDeckDialog";
 import { FlashcardManager } from "./FlashcardManager";
 import { Plus, BookOpen, Calendar, TrendingUp, Zap } from "lucide-react";
 import { DeckWithStats } from "@/types/flashcards";
@@ -16,6 +17,7 @@ export function Dashboard() {
   const [viewMode, setViewMode] = useState<ViewMode>('dashboard');
   const [selectedDeckId, setSelectedDeckId] = useState<string>("");
   const [showCreateDeck, setShowCreateDeck] = useState(false);
+  const [showEditDeck, setShowEditDeck] = useState(false);
   
   const { data: decks = [], isLoading } = useDecks();
   const { data: studyCards = [] } = useStudyCards(selectedDeckId);
@@ -59,6 +61,11 @@ export function Dashboard() {
     setSelectedDeckId(deckId);
     setViewMode('manage-cards');
   };
+  
+  const handleEditDeck = (deckId: string) => {
+    setSelectedDeckId(deckId);
+    setShowEditDeck(true);
+  };
 
   const handleDeleteDeck = (deckId: string) => {
     deleteDeck.mutateAsync(deckId);
@@ -70,7 +77,7 @@ export function Dashboard() {
         key={deck.id}
         deck={deck}
         onStudy={handleStudy}
-        onEdit={(id) => console.log('Edit deck:', id)}
+        onEdit={handleEditDeck}
         onManageCards={handleManageCards}
         onDelete={handleDeleteDeck}
         level={level}
@@ -212,6 +219,13 @@ export function Dashboard() {
         open={showCreateDeck}
         onOpenChange={setShowCreateDeck}
       />
+      {selectedDeckId && (
+        <EditDeckDialog
+          deckId={selectedDeckId}
+          open={showEditDeck}
+          onOpenChange={setShowEditDeck}
+        />
+      )}
     </div>
   );
 }
