@@ -3,6 +3,31 @@ import { supabase } from "@/integrations/supabase/client";
 import { Deck, DeckWithStats } from "@/types/flashcards";
 import { toast } from "@/hooks/use-toast";
 
+interface DeckTree {
+  [key: string]: DeckWithStats;
+}
+
+// Função utilitária para construir a árvore de decks
+const buildDeckTree = (decks: DeckWithStats[]): DeckWithStats[] => {
+  const deckMap: DeckTree = {};
+
+  decks.forEach(deck => {
+    deckMap[deck.id] = { ...deck, sub_decks: [] };
+  });
+
+  const tree: DeckWithStats[] = [];
+
+  decks.forEach(deck => {
+    if (deck.parent_deck_id && deckMap[deck.parent_deck_id]) {
+      deckMap[deck.parent_deck_id].sub_decks.push(deckMap[deck.id]);
+    } else {
+      tree.push(deckMap[deck.id]);
+    }
+  });
+
+  return tree;
+};
+
 export function useDecks() {
   return useQuery({
     queryKey: ["decks"],
@@ -21,7 +46,7 @@ export function useDecks() {
 
       if (error) throw error;
 
-      return (decks || []).map((deck) => {
+      const decksWithStats = (decks || []).map((deck) => {
         const cards = deck.flashcards || [];
         const now = new Date().toISOString();
         
@@ -31,8 +56,11 @@ export function useDecks() {
           total_cards: cards.length,
           cards_to_review: cards.filter((card: any) => card.next_review <= now).length,
           new_cards: cards.filter((card: any) => card.difficulty === 0).length,
+          sub_decks: [],
         };
       });
+
+      return buildDeckTree(decksWithStats);
     },
   });
 }

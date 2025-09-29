@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { useDecks } from "@/hooks/useDecks";
+import { useDecks, useDeleteDeck } from "@/hooks/useDecks";
 import { useStudyCards } from "@/hooks/useFlashcards";
 import { DeckCard } from "./DeckCard";
 import { StudyMode } from "./StudyMode";
 import { CreateDeckDialog } from "./CreateDeckDialog";
 import { FlashcardManager } from "./FlashcardManager";
 import { Plus, BookOpen, Calendar, TrendingUp, Zap } from "lucide-react";
+import { DeckWithStats } from "@/types/flashcards";
 
 type ViewMode = 'dashboard' | 'study' | 'manage-cards';
 
@@ -19,6 +19,7 @@ export function Dashboard() {
   
   const { data: decks = [], isLoading } = useDecks();
   const { data: studyCards = [] } = useStudyCards(selectedDeckId);
+  const deleteDeck = useDeleteDeck();
   
   if (viewMode === 'study' && selectedDeckId) {
     return (
@@ -57,6 +58,24 @@ export function Dashboard() {
   const handleManageCards = (deckId: string) => {
     setSelectedDeckId(deckId);
     setViewMode('manage-cards');
+  };
+
+  const handleDeleteDeck = (deckId: string) => {
+    deleteDeck.mutateAsync(deckId);
+  };
+
+  const renderDecks = (decksToRender: DeckWithStats[], level: number) => {
+    return decksToRender.map(deck => (
+      <DeckCard
+        key={deck.id}
+        deck={deck}
+        onStudy={handleStudy}
+        onEdit={(id) => console.log('Edit deck:', id)}
+        onManageCards={handleManageCards}
+        onDelete={handleDeleteDeck}
+        level={level}
+      />
+    ));
   };
   
   return (
@@ -184,15 +203,7 @@ export function Dashboard() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {decks.map((deck) => (
-              <DeckCard
-                key={deck.id}
-                deck={deck}
-                onStudy={handleStudy}
-                onEdit={(id) => console.log('Edit deck:', id)}
-                onManageCards={handleManageCards}
-              />
-            ))}
+            {renderDecks(decks, 0)}
           </div>
         )}
       </div>

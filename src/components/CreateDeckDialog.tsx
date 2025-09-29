@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useCreateDeck } from "@/hooks/useDecks";
+import { useCreateDeck, useDecks } from "@/hooks/useDecks";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 interface CreateDeckDialogProps {
   open: boolean;
@@ -26,8 +27,10 @@ export function CreateDeckDialog({ open, onOpenChange }: CreateDeckDialogProps) 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedColor, setSelectedColor] = useState(DECK_COLORS[0]);
+  const [parentDeckId, setParentDeckId] = useState<string | undefined>(undefined);
   
   const createDeck = useCreateDeck();
+  const { data: decks = [] } = useDecks();
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,12 +42,14 @@ export function CreateDeckDialog({ open, onOpenChange }: CreateDeckDialogProps) 
         name: name.trim(),
         description: description.trim() || undefined,
         color: selectedColor,
+        parent_deck_id: parentDeckId,
       });
       
       // Reset form
       setName("");
       setDescription("");
       setSelectedColor(DECK_COLORS[0]);
+      setParentDeckId(undefined);
       onOpenChange(false);
     } catch (error) {
       // Error handling is done in the hook
@@ -82,6 +87,22 @@ export function CreateDeckDialog({ open, onOpenChange }: CreateDeckDialogProps) 
               placeholder="Descrição do que será estudado neste deck..."
               rows={3}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="parent-deck">Deck Pai (opcional)</Label>
+            <Select onValueChange={setParentDeckId} value={parentDeckId}>
+              <SelectTrigger id="parent-deck">
+                <SelectValue placeholder="Selecione um deck pai" />
+              </SelectTrigger>
+              <SelectContent>
+                {decks.map((deck) => (
+                  <SelectItem key={deck.id} value={deck.id}>
+                    {deck.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="space-y-2">

@@ -5,6 +5,7 @@ export interface Deck {
   color: string;
   created_at: string;
   updated_at: string;
+  parent_deck_id?: string;
 }
 
 export interface Flashcard {
@@ -23,6 +24,7 @@ export interface DeckWithStats extends Deck {
   total_cards: number;
   cards_to_review: number;
   new_cards: number;
+  sub_decks: DeckWithStats[];
 }
 
 export interface StudySession {
